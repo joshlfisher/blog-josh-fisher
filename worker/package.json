@@ -1,1 +1,12 @@
-...
+{
+  "name": "blog-api",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker API for personal blog",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler publish"
+  },
+  "dependencies": {}
+}

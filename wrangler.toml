@@ -1,1 +1,21 @@
+name = "blog-api"
+main = "worker/index.js"
+compatibility_date = "2025-12-04"
+account_id = "b7b08f763d1cae55869c430d3efc6a3e"
+type = "javascript"
+
+[vars]
+PAGES_ORIGIN = "https://blog.josh-fisher.com"
+
+[[d1_databases]]
+binding = "BLOG_DB"
+database_name = "blog-josh-fisher"
+
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "blog-media"
+
+[[kv_namespaces]]
+binding = "BLOG_CACHE"
+id = "280a5e72118541588fdf50a8be1bf270"
 ...

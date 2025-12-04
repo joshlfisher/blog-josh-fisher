@@ -1,1 +1,52 @@
-...
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Post</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div id="post" class="card"></div>
+    <div id="giscus"></div>
+    <footer style="margin-top:20px;color:var(--muted)">Powered by Cloudflare</footer>
+  </div>
+
+<script>
+async function load() {
+  const path = location.pathname.replace(/^\/post\//, "");
+  const slug = decodeURIComponent(path);
+  if(!slug) { document.getElementById('post').innerHTML = '<div>Bad request</div>'; return; }
+  const r = await fetch('/api/post/' + encodeURIComponent(slug));
+  if (!r.ok) { document.getElementById('post').innerHTML = '<div>Not found</div>'; return; }
+  const p = await r.json();
+  document.getElementById('post').innerHTML = `
+    <h1 class="post-title">${p.title}</h1>
+    <div class="meta">${p.author} · ${new Date(p.created_at).toLocaleDateString()}</div>
+    <div class="post-content">${p.content}</div>
+  `;
+  // Insert Giscus comments
+  loadGiscus();
+}
+
+function loadGiscus(){
+  const script = document.createElement('script');
+  script.src = 'https://giscus.app/client.js';
+  script.async = true;
+  script.setAttribute('data-repo', 'joshlfisher/blog-josh-fisher');
+  script.setAttribute('data-repo-id', 'R_kgDOQitMuw');
+  script.setAttribute('data-category', 'Blog Comments');
+  script.setAttribute('data-category-id', 'DIC_kwDOQitMu84CzaA8');
+  script.setAttribute('data-mapping', 'pathname');
+  script.setAttribute('data-reactions-enabled', '1');
+  script.setAttribute('data-emit-metadata', '0');
+  script.setAttribute('data-theme', 'transparent_dark');
+  script.crossOrigin = 'anonymous';
+  document.getElementById('giscus').appendChild(script);
+}
+
+load();
+</script>
+</body>
+</html>
