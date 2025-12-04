@@ -18,4 +18,3 @@ bucket_name = "blog-media"
 [[kv_namespaces]]
 binding = "BLOG_CACHE"
 id = "280a5e72118541588fdf50a8be1bf270"
-...
