@@ -1,5 +1,5 @@
 {
-  "name": "blog-api",
+  "name": "josh-fisher-blog",
   "version": "1.0.0",
   "description": "Cloudflare Worker API for personal blog",
   "main": "index.js",
