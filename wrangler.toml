@@ -2,7 +2,6 @@ name = "joshua-fisher-blog"
 main = "worker/index.js"
 compatibility_date = "2025-12-04"
 account_id = "b7b08f763d1cae55869c430d3efc6a3e"
-type = "javascript"
 
 [vars]
 PAGES_ORIGIN = "https://blog.josh-fisher.com"
