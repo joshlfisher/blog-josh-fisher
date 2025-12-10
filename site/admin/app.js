@@ -1,66 +1,145 @@
-async function refreshPosts(){
-  const r = await fetch('/api/posts');
-  const data = await r.json();
-  const container = document.getElementById('posts-list');
-  container.innerHTML = '<h3>Posts</h3>' + (data.map(p => `
-    <div style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.03)">
-      <strong>${p.title}</strong> <span class="meta">${p.created_at}</span>
-      <div style="margin-top:6px">
-        <button onclick="edit(${p.id})" class="btn">Edit</button>
-        <button onclick="del(${p.id})" class="btn" style="margin-left:8px">Delete</button>
-      </div>
-    </div>
-  `).join(''));
+// ------------------------------------------------------------
+// CONFIG
+// ------------------------------------------------------------
+const API_URL = "/api";     // <-- Worker must be routed to /api/*
+const editor = document.getElementById("editor");
+const postList = document.getElementById("post-list");
+const statusBox = document.getElementById("status");
+
+// Markdown converter
+function md(text) {
+    return window.marked.parse(text || "");
 }
 
-async function publish(){
-  const payload = {
-    slug: document.getElementById('slug').value,
-    title: document.getElementById('title').value,
-    summary: document.getElementById('summary').value,
-    content: window.getEditorContent(),
-    published: document.getElementById('published').checked ? 1 : 0
-  };
-  const r = await fetch('/api/admin/post', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  const j = await r.json();
-  if (r.ok) { alert('Posted'); refreshPosts(); } else { alert('Failed: '+JSON.stringify(j)); }
+// ------------------------------------------------------------
+// HELPERS
+// ------------------------------------------------------------
+async function api(path, options = {}) {
+    try {
+        const res = await fetch(API_URL + path, {
+            headers: { "Content-Type": "application/json" },
+            ...options
+        });
+
+        // Handle empty response body safely
+        const text = await res.text();
+        if (!text) {
+            console.error("Empty API response:", path, res.status);
+            throw new Error("API returned empty response");
+        }
+
+        try {
+            return JSON.parse(text);
+        } catch {
+            console.error("Invalid JSON:", text);
+            throw new Error("API returned invalid JSON");
+        }
+
+    } catch (err) {
+        console.error("API ERROR:", err);
+        alert("API Error: " + err.message);
+        throw err;
+    }
 }
 
-async function del(id){
-  if(!confirm('Delete?')) return;
-  await fetch('/api/admin/post/' + id, { method: 'DELETE' });
-  refreshPosts();
+function flash(msg, good = false) {
+    statusBox.innerText = msg;
+    statusBox.style.color = good ? "#5f5" : "#f55";
+    setTimeout(() => { statusBox.innerText = ""; }, 3500);
 }
 
-window.edit = async function(id){
-  const r = await fetch('/api/posts');
-  const posts = await r.json();
-  const p = posts.find(x => x.id == id);
-  if (!p) { alert('Not found'); return; }
-  document.getElementById('title').value = p.title;
-  document.getElementById('slug').value = p.slug;
-  document.getElementById('summary').value = p.summary || '';
-  window.setEditorContent(p.content || '');
-  document.getElementById('published').checked = !!p.published;
+// ------------------------------------------------------------
+// LOAD POSTS
+// ------------------------------------------------------------
+async function loadPosts() {
+    try {
+        const posts = await api("/posts");
+
+        postList.innerHTML = "";
+        posts.forEach(p => {
+            const row = document.createElement("div");
+            row.className = "post-row";
+            row.innerHTML = `
+                <strong>${p.title}</strong>
+                <span>${p.date}</span>
+                <button data-id="${p.id}" class="edit">Edit</button>
+                <button data-id="${p.id}" class="delete">Delete</button>
+            `;
+            postList.appendChild(row);
+        });
+
+    } catch (err) {
+        flash("Failed to load posts.");
+    }
 }
 
-document.getElementById('publish').addEventListener('click', publish);
-document.getElementById('uploadBtn').addEventListener('click', async () => {
-  const file = document.getElementById('file').files[0];
-  if(!file) { alert('No file selected'); return; }
-  const form = new FormData();
-  form.append('file', file);
-  const res = await fetch('/api/admin/upload', { method: 'POST', body: form });
-  const data = await res.json();
-  if (data.url) {
-    alert('Uploaded! Use URL: ' + data.url);
-  } else {
-    alert('Upload failed: ' + JSON.stringify(data));
-  }
+// ------------------------------------------------------------
+// EDIT EXISTING POST
+// ------------------------------------------------------------
+postList.addEventListener("click", async e => {
+    if (e.target.classList.contains("edit")) {
+        const id = e.target.dataset.id;
+
+        try {
+            const post = await api(`/post/${id}`);
+            document.getElementById("post-id").value = id;
+            document.getElementById("title").value = post.title;
+            editor.value = post.body;
+
+            flash("Loaded post for editing.", true);
+        } catch {
+            flash("Failed to load the post.");
+        }
+    }
+
+    if (e.target.classList.contains("delete")) {
+        const id = e.target.dataset.id;
+        if (!confirm("Delete this post?")) return;
+
+        try {
+            await api(`/post/${id}`, { method: "DELETE" });
+            flash("Post deleted.", true);
+            loadPosts();
+        } catch {
+            flash("Delete failed.");
+        }
+    }
 });
 
-refreshPosts();
+// ------------------------------------------------------------
+// PUBLISH POST (NEW OR UPDATE)
+// ------------------------------------------------------------
+document.getElementById("publish").addEventListener("click", async () => {
+    const id = document.getElementById("post-id").value;
+    const title = document.getElementById("title").value.trim();
+    const body = editor.value.trim();
+
+    if (!title || !body) {
+        flash("Title/body cannot be empty.");
+        return;
+    }
+
+    const payload = JSON.stringify({ title, body });
+
+    try {
+        const saved = await api(id ? `/post/${id}` : "/post", {
+            method: id ? "PUT" : "POST",
+            body: payload
+        });
+
+        flash("Post saved!", true);
+        document.getElementById("post-id").value = "";
+        document.getElementById("title").value = "";
+        editor.value = "";
+
+        loadPosts();
+
+    } catch (err) {
+        flash("Publish failed: " + err.message);
+    }
+});
+
+// ------------------------------------------------------------
+// INIT
+// ------------------------------------------------------------
+loadPosts();
