@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Blog — Dark Modern</title>
+  <title>Josh Fisher — Blog</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
@@ -22,21 +22,35 @@
 
 <script>
 async function fetchPosts(){
-  const r = await fetch("/api/posts");
-  const data = await r.json();
-  const out = document.getElementById("posts");
-  if (!data || data.length === 0) { out.innerHTML = '<div class="card">No posts yet</div>'; return; }
-  out.innerHTML = data.map(p => `
-    <a class="card post-card" href="/post/${encodeURIComponent(p.slug)}">
-      <div style="display:flex;justify-content:space-between">
-        <div>
-          <div style="font-weight:700">${p.title}</div>
-          <div class="meta">${p.author} · ${new Date(p.created_at).toLocaleDateString()}</div>
+  try {
+    const r = await fetch("/api/posts");
+    if (!r.ok) {
+      throw new Error('Failed to fetch posts');
+    }
+    const data = await r.json();
+    const out = document.getElementById("posts");
+
+    if (!data || data.length === 0) {
+      out.innerHTML = '<div class="card">No posts yet</div>';
+      return;
+    }
+
+    out.innerHTML = data.map(p => `
+      <a class="card post-card" href="/post/${encodeURIComponent(p.slug)}">
+        <div style="display:flex;justify-content:space-between">
+          <div>
+            <div style="font-weight:700">${p.title}</div>
+            <div class="meta">${p.author} · ${new Date(p.created_at).toLocaleDateString()}</div>
+          </div>
+          <div style="color:var(--muted);font-size:13px">${p.tags || ""}</div>
         </div>
-        <div style="color:var(--muted);font-size:13px">${p.tags || ""}</div>
-      </div>
-      <div style="margin-top:8px;color:var(--muted)">${p.summary || ""}</div>
-    </a>`).join("");
+        <div style="margin-top:8px;color:var(--muted)">${p.summary || ""}</div>
+      </a>
+    `).join("");
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    document.getElementById("posts").innerHTML = '<div class="card">Failed to load posts</div>';
+  }
 }
 
 fetchPosts();

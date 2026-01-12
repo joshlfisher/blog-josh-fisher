@@ -5,11 +5,15 @@
   <title>Post</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="/assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
   <div class="container">
     <div id="post" class="card"></div>
     <div id="giscus"></div>
+    <div style="margin-top:20px;text-align:center">
+      <a href="/" style="color:var(--muted);text-decoration:none">&larr; Back to posts</a>
+    </div>
     <footer style="margin-top:20px;color:var(--muted)">Powered by Cloudflare</footer>
   </div>
 
@@ -17,17 +21,40 @@
 async function load() {
   const path = location.pathname.replace(/^\/post\//, "");
   const slug = decodeURIComponent(path);
-  if(!slug) { document.getElementById('post').innerHTML = '<div>Bad request</div>'; return; }
-  const r = await fetch('/api/post/' + encodeURIComponent(slug));
-  if (!r.ok) { document.getElementById('post').innerHTML = '<div>Not found</div>'; return; }
-  const p = await r.json();
-  document.getElementById('post').innerHTML = `
-    <h1 class="post-title">${p.title}</h1>
-    <div class="meta">${p.author} · ${new Date(p.created_at).toLocaleDateString()}</div>
-    <div class="post-content">${p.content}</div>
-  `;
-  // Insert Giscus comments
-  loadGiscus();
+
+  if(!slug) {
+    document.getElementById('post').innerHTML = '<div>Bad request</div>';
+    return;
+  }
+
+  try {
+    const r = await fetch('/api/post/' + encodeURIComponent(slug));
+
+    if (!r.ok) {
+      document.getElementById('post').innerHTML = '<div>Post not found</div>';
+      return;
+    }
+
+    const p = await r.json();
+
+    // Convert markdown content to HTML
+    const contentHtml = marked.parse(p.content || '');
+
+    document.getElementById('post').innerHTML = `
+      <h1 class="post-title">${p.title}</h1>
+      <div class="meta">${p.author} · ${new Date(p.created_at).toLocaleDateString()}</div>
+      ${p.tags ? `<div class="meta" style="margin-bottom:10px">Tags: ${p.tags}</div>` : ''}
+      <div class="post-content">${contentHtml}</div>
+    `;
+
+    document.title = p.title + ' — Josh Fisher';
+
+    // Insert Giscus comments
+    loadGiscus();
+  } catch (error) {
+    console.error('Error loading post:', error);
+    document.getElementById('post').innerHTML = '<div>Failed to load post</div>';
+  }
 }
 
 function loadGiscus(){

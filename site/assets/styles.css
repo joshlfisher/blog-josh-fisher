@@ -13,16 +13,90 @@ body{
   color:var(--text);
   -webkit-font-smoothing:antialiased;
 }
-.container{max-width:900px;margin:36px auto;padding:0 20px}
+.container{max-width:900px;margin:36px auto;padding:0 20px;min-height:100vh;display:flex;flex-direction:column}
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
 .logo{font-weight:700;font-size:20px;letter-spacing:0.4px}
 .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:20px;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.03)}
 .post-title{font-size:28px;margin:0 0 10px}
 .meta{color:var(--muted);font-size:13px;margin-bottom:10px}
 .post-content{line-height:1.7;color:#cfe7ff}
+.post-content h1,.post-content h2,.post-content h3{margin-top:1.5em;margin-bottom:0.5em}
+.post-content p{margin-bottom:1em}
+.post-content code{background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;font-size:0.9em}
+.post-content pre{background:rgba(0,0,0,0.3);padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0}
+.post-content pre code{background:none;padding:0}
+.post-content ul,.post-content ol{padding-left:2em;margin-bottom:1em}
+.post-content blockquote{border-left:3px solid var(--accent);padding-left:16px;margin:16px 0;color:var(--muted)}
+.post-content img{max-width:100%;border-radius:8px;margin:16px 0}
+.post-content a{color:var(--accent);text-decoration:none}
+.post-content a:hover{text-decoration:underline}
 .post-list{display:grid;gap:12px}
 .post-card{display:block;padding:16px;border-radius:10px;text-decoration:none;color:inherit;border:1px solid rgba(255,255,255,0.02);transition:transform .15s ease}
 .post-card:hover{transform:translateY(-4px)}
-.btn{display:inline-block;padding:8px 12px;border-radius:8px;background:linear-gradient(90deg,var(--accent),#4858ff);color:white;text-decoration:none}
-.admin-link{font-size:14px;color:var(--muted)}
-footer{margin-top:26px;color:var(--muted);font-size:13px;text-align:center}
+.btn{display:inline-block;padding:8px 12px;border-radius:8px;background:linear-gradient(90deg,var(--accent),#4858ff);color:white;text-decoration:none;border:none;cursor:pointer;font-size:14px}
+.btn:hover{opacity:0.9}
+.admin-link{font-size:14px;color:var(--muted);text-decoration:none}
+.admin-link:hover{color:var(--text)}
+input[type="text"],input[type="email"],input[type="password"],textarea{
+  background:rgba(0,0,0,0.3);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:6px;
+  padding:8px 12px;
+  color:var(--text);
+  font-size:14px;
+  width:100%;
+  box-sizing:border-box;
+}
+input:focus,textarea:focus{
+  outline:none;
+  border-color:var(--accent);
+}
+input::placeholder,textarea::placeholder{
+  color:rgba(154,166,178,0.5);
+}
+.post-row{
+  padding:12px;
+  margin-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.post-row:last-child{
+  border-bottom:none;
+}
+#status{
+  margin-right:10px;
+  font-size:14px;
+  font-weight:500;
+}
+footer{margin-top:auto;padding-top:26px;color:var(--muted);font-size:13px;text-align:center}
+
+/* Quill Editor Customization */
+.ql-container{
+  border:1px solid rgba(255,255,255,0.1) !important;
+  background:white;
+  border-radius:0 0 8px 8px;
+  font-size:14px;
+}
+.ql-toolbar{
+  border:1px solid rgba(255,255,255,0.1) !important;
+  border-bottom:none;
+  border-radius:8px 8px 0 0;
+  background:rgba(0,0,0,0.3);
+}
+.ql-editor{
+  min-height:200px;
+}
+.ql-editor.ql-blank::before{
+  color:rgba(0,0,0,0.5);
+}
+
+/* Giscus Comments */
+#giscus{
+  margin-top:30px;
+}
+
+/* Responsive */
+@media (max-width:640px){
+  .container{margin:20px auto;padding:0 16px}
+  .header{flex-direction:column;align-items:flex-start;gap:12px}
+  .post-title{font-size:24px}
+}

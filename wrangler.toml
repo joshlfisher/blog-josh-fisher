@@ -11,6 +11,10 @@ binding = "BLOG_DB"
 database_name = "blog-josh-fisher"
 
 [[r2_buckets]]
+binding = "BLOG"
+bucket_name = "blog-josh-fisher"
+
+[[r2_buckets]]
 binding = "MEDIA_BUCKET"
 bucket_name = "blog-media"
 

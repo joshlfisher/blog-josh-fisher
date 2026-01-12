@@ -5,35 +5,41 @@
 <link rel="stylesheet" href="/assets/styles.css">
 <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <title>Admin</title>
 </head>
 <body>
 <div class="container">
   <div class="header">
     <div class="logo">Admin — Blog</div>
-    <div><a class="btn" href="/">View site</a></div>
+    <div>
+      <span id="status"></span>
+      <a class="btn" href="/">View site</a>
+    </div>
   </div>
 
   <div class="card">
     <h2>New Post</h2>
+    <input type="hidden" id="post-id" />
     <input id="title" placeholder="Title" style="width:100%;padding:8px;margin-bottom:8px"/>
-    <input id="slug" placeholder="Slug" style="width:100%;padding:8px;margin-bottom:8px"/>
+    <input id="slug" placeholder="Slug (optional, auto-generated from title)" style="width:100%;padding:8px;margin-bottom:8px"/>
+    <input id="author" placeholder="Author" style="width:100%;padding:8px;margin-bottom:8px" value="Josh Fisher"/>
+    <input id="tags" placeholder="Tags (comma separated)" style="width:100%;padding:8px;margin-bottom:8px"/>
     <input id="summary" placeholder="Summary" style="width:100%;padding:8px;margin-bottom:8px"/>
-    <div id="editor" style="height:240px;background:white;color:black"></div>
+    <div id="editor" style="height:240px;background:white;color:black;margin-bottom:8px"></div>
     <div style="margin-top:8px">
-      <input type="file" id="file" />
-      <button id="uploadBtn" class="btn">Upload</button>
-    </div>
-    <div style="margin-top:8px">
-      <label>Published <input id="published" type="checkbox" /></label>
+      <label>Published <input id="published" type="checkbox" checked /></label>
     </div>
     <div style="margin-top:8px">
       <button id="publish" class="btn">Publish</button>
+      <button id="clear" class="btn" style="background:var(--muted)">Clear</button>
     </div>
   </div>
 
   <div style="height:30px"></div>
-  <div id="posts-list" class="card"></div>
+  <div id="posts-list" class="card">
+    <h2>Posts</h2>
+  </div>
 </div>
 
 <script src="editor.js"></script>
